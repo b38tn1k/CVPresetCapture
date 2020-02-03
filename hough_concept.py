@@ -2,15 +2,15 @@ import cv2
 import numpy as np
 import sys
 import math
-from sklearn.cluster import KMeans
 
-def showTilShut(name, img):
+def showTilShut(img, name='test'):
     cv2.imshow(name,img)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
 def hough(arg):
     # load image
+    pts_src = np.array([[ 66, 324],  [152, 244],  [686, 244],  [684, 142],  [ 64, 144],  [152, 142],  [242, 146],  [508, 146],  [330, 146],  [ 66, 244],  [242, 244],  [596, 142],  [422, 246],  [422, 144],  [596, 244]])
     img = cv2.imread(arg)
     scale_percent = 30 # percent of original size
     width = int(img.shape[1] * scale_percent / 100)
@@ -23,8 +23,8 @@ def hough(arg):
     dark_orange = (50, 150, 255)
     white1 = (125, 125, 255)
     white2 = (0, 0, 0)
-    import matplotlib.pyplot as plt
-    from matplotlib.colors import hsv_to_rgb
+    # import matplotlib.pyplot as plt
+    # from matplotlib.colors import hsv_to_rgb
     # lo_square = np.full((10, 10, 3), light_orange, dtype=np.uint8) / 255.0
     # do_square = np.full((10, 10, 3), dark_orange, dtype=np.uint8) / 255.0
     # lo_square = np.full((10, 10, 3), white1, dtype=np.uint8) / 255.0
@@ -71,26 +71,32 @@ def hough(arg):
     circles = cv2.HoughCircles(cimg,cv2.HOUGH_GRADIENT,1,20,param1=80,param2=18,minRadius=minR,maxRadius=maxR)
     print("circles found")
     circles = np.uint16(np.around(circles))[0,:]
+    circle_points = []
     for i in circles:
         #filter
         if (i[0] > xMin and i[0] < xMax) and (i[1] > yMin and i[1] < yMax):
-            #search for the black dot
-            xdot = 0
-            ydot = 0
-
+            circle_points.append([i[0], i[1]])
             # draw the outer circle
-            cv2.circle(img,(i[0],i[1]),i[2],(0,255,0),2)
-            print(f"{i[0]}\t {i[1]}\t {i[2]}")
-            # draw the center of the circle
-            cv2.circle(img,(i[0],i[1]),2,(0,0,255),3)
-
-            # draw the outer circle
-            cv2.circle(mask2,(i[0],i[1]),i[2],(0,255,0),2)
-            print(f"{i[0]}\t {i[1]}\t {i[2]}")
-            # draw the center of the circle
-            cv2.circle(mask2,(i[0],i[1]),2,(0,0,255),3)
-
-    showTilShut('test',img)
+            # cv2.circle(img,(i[0],i[1]),i[2],(0,255,0),2)
+            # print(f"{i[0]}\t {i[1]}\t {i[2]}")
+            # # draw the center of the circle
+            # cv2.circle(img,(i[0],i[1]),2,(0,0,255),3)
+            #
+            # # draw the outer circle
+            # cv2.circle(mask2,(i[0],i[1]),i[2],(0,255,0),2)
+            # print(f"{i[0]}\t {i[1]}\t {i[2]}")
+            # # draw the center of the circle
+            # cv2.circle(mask2,(i[0],i[1]),2,(0,0,255),3)
+    circle_points = circle_points[:pts_src.shape[0]]
+    circle_points = np.asarray(circle_points)
+    print(circle_points, type(circle_points))
+    print(circle_points.shape)
+    print(pts_src.shape)
+    h, status = cv2.findHomography(pts_src, circle_points)
+    size = (int(img.shape[1]/2), int(img.shape[0]/2))
+    im_dst = cv2.warpPerspective(img, h, size)
+    showTilShut(im_dst)
+    # showTilShut(img)
 
 
 if __name__=="__main__":
