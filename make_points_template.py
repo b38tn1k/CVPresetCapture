@@ -29,7 +29,7 @@ def make_template(arg):
     template_points = []
     for i in circles:
         addCircle(temp, i)
-        template_points.append([i[2],i[1]])
+        template_points.append([i[0],i[1]])
     template_points = np.asarray(template_points)
     pickle.dump(template_points, open(arg[2], "wb"))
     showTilShut(temp, name="Change the min/max radius until all knobs are circled and there are no false postitives PRESS ANY KEY TO CLOSE")
